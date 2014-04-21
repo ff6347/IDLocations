@@ -3,9 +3,7 @@
 Generating geo data based graphics in Adobe InDesign. See also [IDMap](https://github.com/fabiantheblind/IDMap) for generating maps in ID.
 
 ## Getting Started
-Download the [production version][here].
-
-[min]: https://github.com/fabiantheblind/IDLocations
+Download the [production version](https://github.com/fabiantheblind/IDLocations)
 
 ## Documentation
 _(Coming soon)_
