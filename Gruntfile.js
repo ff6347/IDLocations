@@ -11,13 +11,12 @@ module.exports = function(grunt) {
 
     concat: {
       options: {
-
     banner: '\n/*! <%= pkg.name %>.jsx - v<%= pkg.version %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %> */\n',
         stripBanners: false
       },
       scripts: {
-        src: ['src/IDLocations.jsx'],
+        src: ['src/locations/license.jsx','src/locations/globals.jsx','src/locations/main.jsx'],
         dest: 'src/tmp/<%= pkg.name %>.concat.<%= pkg.version %>.jsx'
       }
     },
