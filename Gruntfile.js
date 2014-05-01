@@ -8,6 +8,18 @@ module.exports = function(grunt) {
     meta: {
       version: '0.1.0'
     },
+    minified : {
+      files: {
+        src: [
+    'src/lib/JSON-js/json2.js',
+    ],
+    dest: 'src/tmp/'
+  },
+  options : {
+    sourcemap: false,
+    allinone: false
+  },
+},
 
     concat: {
       options: {
@@ -16,12 +28,28 @@ module.exports = function(grunt) {
         stripBanners: false
       },
       scripts: {
-        src: ['src/locations/license.jsx','src/locations/globals.jsx','src/locations/main.jsx'],
+        src: ['src/locations/license.jsx',
+        'src/locations/globals.jsx',
+        'src/locations/document.jsx',
+        'src/lib/extendscript.prototypes/dist/extendscript.prototypes.0.0.1.jsx',
+        'src/lib/extendscript.csv/dist/extendscript.csv.jsx',
+        'src/lib/extendscript.geo/dist/extendscript.geo.id.jsx',
+        'src/tmp/json2.js',
+        'src/locations/importer.jsx',
+        'src/locations/geo.jsx',
+        'src/locations/styling.jsx',
+        'src/locations/selection.jsx',
+        'src/locations/marker.jsx',
+        'src/locations/main.jsx'],
         dest: 'src/tmp/<%= pkg.name %>.concat.<%= pkg.version %>.jsx'
       }
     },
 
     copy: {
+      "json-js":{
+        src:"src/lib/JSON-js/json2.js",
+        dest:"src/tmp/json2.min.js"
+      },
       "script": {
         src: "src/tmp/<%= pkg.name %>.concat.wrap.<%= pkg.version %>.jsx",
         dest: "dist/<%= pkg.name %>.<%= pkg.version %>.jsx",
@@ -35,16 +63,17 @@ module.exports = function(grunt) {
         src: ['src/tmp/<%= pkg.name %>.concat.<%= pkg.version %>.jsx'],
         dest: 'src/tmp/<%= pkg.name %>.concat.wrap.<%= pkg.version %>.jsx',
         options: {
-          wrapper: ['//before\n', '\n//after']
+          wrapper: ['(function(thisObj) {', '})(this);\n']
         },
       },
     },
     watch: {
-      files: ['src/*.jsx', 'src/*.js', 'src/lib/*'],
-      tasks: ['concat:scripts', 'wrap:script','copy:script']
+      files: ['src/locations/*.jsx', 'src/locations/*.js', 'src/lib/*'],
+      tasks: ['minified','concat:scripts', 'wrap:script','copy:script']
     }
 
   });
+  grunt.registerTask('build-dist', ['concat:scripts', 'wrap:script','copy:script']);
 
   grunt.registerTask('default', ['watch']);
 

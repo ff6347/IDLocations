@@ -1,0 +1,29 @@
+label_flag,pop_rank,cntry_name,continent,city_name,pop_class,geo_score,geo_precision,latitude,longitude
+1,4,Eritrea,Africa,Assab,"250,000 to 499,999",0.943,zip,13.0091667,42.7394444
+0,2,Indonesia,Asia,Bandung,"1,000,000 to 4,999,999",1.0,zip,-6.9127778,107.6205556
+0,1,Thailand,Asia,Bangkok,"5,000,000 and greater",1.0,zip,13.75,100.5166667
+0,2,India,Asia,Calcutta,"1,000,000 to 4,999,999",1.0,zip,22.5697222,88.3697222
+0,5,Venezuela,South America,Caripito,"100,000 to 249,999",0.957,zip,8.0,-67.6666667
+1,2,Senegal,Africa,Dakar,"1,000,000 to 4,999,999",1.0,zip,14.6951118854684,-17.4438858032227
+0,6,Australia,Australia,Darwin,"50,000 to 99,999",1.0,zip,-12.4611336615902,130.841846466064
+0,6,Sudan,Africa,El Fasher,"50,000 to 99,999",0.911,zip,16.2166667,36.3333333
+0,2,Brazil,South America,Fortaleza,"1,000,000 to 4,999,999",1.0,zip,-3.717222222,-38.54305556
+0,7,Mali,Africa,Gao,"Less than 50,000",1.0,zip,16.2740055459091,-0.0415420532226562
+0,1,Pakistan,Asia,Karachi,"5,000,000 and greater",1.0,zip,24.8666667,67.05
+0,3,Sudan,Africa,Khartoum,"500,000 to 999,999",1.0,zip,15.5880556,32.5341667
+0,6,Indonesia,Asia,Kupang,"50,000 to 99,999",1.0,zip,-10.1666667,123.5833333
+0,6,Papua New Guinea,Asia,Lae,"50,000 to 99,999",1.0,zip,-6.7333333,147.0
+0,4,Eritrea,Africa,Massawa,"250,000 to 499,999",0.0,unmatched,,
+0,2,United States,North America,Miami,"1,000,000 to 4,999,999",1.0,zip,25.7742658,-80.1936589
+0,3,Brazil,South America,Natal,"500,000 to 999,999",1.0,zip,-5.795,-35.20944444
+0,3,Chad,Africa,Ndjamena,"500,000 to 999,999",1.0,zip,12.1130556,15.0491667
+0,2,United States,North America,New Orleans,"1,000,000 to 4,999,999",0.901,zip,30.0335344,-89.950068
+0,4,United States,North America,Oakland,"250,000 to 499,999",0.934,zip,42.6666979,-83.399939
+1,5,Suriname,South America,Paramaribo,"100,000 to 249,999",1.0,zip,5.8333333,-55.1666667
+0,6,Senegal,Africa,Saint Louis,"50,000 to 99,999",1.0,zip,16.0179309620427,-16.4896202087402
+1,4,Puerto Rico,North America,San Juan,"250,000 to 499,999",1.0,zip,18.3910596,-66.0621103
+1,2,Singapore,Asia,Singapore,"1,000,000 to 4,999,999",1.0,zip,1.2930556,103.8558333
+0,5,Myanmar,Asia,Sittwe,"100,000 to 249,999",0.738,zip,11.45,10.3666667
+0,2,Indonesia,Asia,Surabaja,"1,000,000 to 4,999,999",0.0,unmatched,,
+0,3,United States,North America,Tucson,"500,000 to 999,999",1.0,zip,32.2217429,-110.926479
+1,2,Myanmar,Asia,Yangon,"1,000,000 to 4,999,999",0.768,zip,-34.3333333,140.3166667

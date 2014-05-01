@@ -7,3 +7,6 @@
 [submodule "src/lib/extendscript.prototypes"]
 	path = src/lib/extendscript.prototypes
 	url = git@github.com:fabiantheblind/extendscript.prototypes.git
+[submodule "src/lib/JSON-js"]
+	path = src/lib/JSON-js
+	url = https://github.com/douglascrockford/JSON-js.git
