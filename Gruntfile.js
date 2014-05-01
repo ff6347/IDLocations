@@ -31,6 +31,7 @@ module.exports = function(grunt) {
         src: ['src/locations/license.jsx',
         'src/locations/globals.jsx',
         'src/locations/document.jsx',
+        'src/locations/utilites.jsx',
         'src/lib/extendscript.prototypes/dist/extendscript.prototypes.0.0.1.jsx',
         'src/lib/extendscript.csv/dist/extendscript.csv.jsx',
         'src/lib/extendscript.geo/dist/extendscript.geo.id.jsx',

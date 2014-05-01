@@ -5,6 +5,11 @@ var DEBUG = true; // just for debugging to the console
 var settings = {
   new_layer: true,
   new_layer_name: 'marker',
+  latitude_key:"",
+  longitude_key:"",
+  text_key:"",
+  possible_lat_keys : ["latitude","Latitude","LATITUDE","lat", "Lat","LAT"],
+  possible_lon_keys : ["longitude","Longitude","LONGITUDE","lon", "Lon","LON"],
   /*
   The script will set these infos below by itself. Don't change them.
   It reads data written by IDMap into the document.label

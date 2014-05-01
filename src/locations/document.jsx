@@ -17,7 +17,7 @@ var get_doc_infos = function() {
       "ph": app.activeDocument.documentPreferences.pageWidth,
       "pw": app.activeDocument.documentPreferences.pageHeight,
       "bounds": info.bounds,
-      "ptype": info.ptype,
+      "ptype": info.projectionType,
       "zoomed": info.zoomed
     };
   }
@@ -32,7 +32,6 @@ var doc_setup = function(settings) {
   settings.boundingBox.bounds = info.bounds;
   settings.boundingBox.zoomed = info.zoomed;
 
-  return settings.doc;
 };
 
 // end of document.jsx

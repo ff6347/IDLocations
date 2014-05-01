@@ -4,7 +4,8 @@
  */
 
 var draw = function() {
-  var doc = doc_setup(settings);
+  doc_setup(settings);
+  var doc = settings.doc;
   var page = doc.layoutWindows[0].activePage;
   var geodata = importer();
   if (geodata === null){
@@ -12,8 +13,11 @@ var draw = function() {
       "Please inspect your csv file");
     return 0;
   }
-  var currMarker = selector(doc, page);
-
+  var marker = selector(doc, page);
+  // alert(geodata.toSource());
+  var coordinates = geodata_to_indesign_coords(settings, geodata, doc, page);
+  // alert(coordinates.toSource());
+  place_markers(doc, page, marker, coordinates,settings);
 };
 
 draw();

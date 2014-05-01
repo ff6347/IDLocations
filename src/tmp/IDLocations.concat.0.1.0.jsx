@@ -34,6 +34,11 @@ var DEBUG = true; // just for debugging to the console
 var settings = {
   new_layer: true,
   new_layer_name: 'marker',
+  latitude_key:"",
+  longitude_key:"",
+  text_key:"",
+  possible_lat_keys : ["latitude","Latitude","LATITUDE","lat", "Lat","LAT"],
+  possible_lon_keys : ["longitude","Longitude","LONGITUDE","lon", "Lon","LON"],
   /*
   The script will set these infos below by itself. Don't change them.
   It reads data written by IDMap into the document.label
@@ -116,7 +121,7 @@ var get_doc_infos = function() {
       "ph": app.activeDocument.documentPreferences.pageWidth,
       "pw": app.activeDocument.documentPreferences.pageHeight,
       "bounds": info.bounds,
-      "ptype": info.ptype,
+      "ptype": info.projectionType,
       "zoomed": info.zoomed
     };
   }
@@ -131,7 +136,6 @@ var doc_setup = function(settings) {
   settings.boundingBox.bounds = info.bounds;
   settings.boundingBox.zoomed = info.zoomed;
 
-  return settings.doc;
 };
 
 // end of document.jsx
@@ -822,8 +826,93 @@ var importer = function (){
 /**
  * This is src/locations/geo.jsx
  */
+var geodata_to_indesign_coords = function(settings, geodata, doc, page) {
+
+  var geojson_analyzer = function(settings, element) {
+    var found_lat = false;
+    var found_lon = false;
+    var keys = {
+      lon: null,
+      lat: null
+    };
+    if (element.hasOwnProperty(settings.latitude_key)) {
+      found_lat = true;
+    }
+    if (element.hasOwnProperty(settings.longitude_key)) {
+      found_lon = true;
+    }
+
+    if (found_lat === true && found_lon === true) {
+      keys.lon = settings.longitude_key;
+      keys.lat = settings.latitude_key;
+      return keys;
+    }
+    // if we are here we didn't match the right element
+    // lets loop the possible keys
+    for (var i = 0; i < settings.possible_lat_keys.length; i++) {
+      for (var k in element) {
+        if (element.hasOwnProperty(k)) {
+          if ((settings.possible_lat_keys[i]).localeCompare(k) === 0) {
+            keys.lat = k;
+            found_lat = true;
+            continue;
+          }
+        }
+      }
+      if (found_lat === true) {
+        continue;
+      }
+    }
+    for (var j = 0; j < settings.possible_lon_keys.length; j++) {
+      for (var l in element) {
+        if (element.hasOwnProperty(l)) {
+          if ((settings.possible_lon_keys[j]).localeCompare(l) === 0) {
+            keys.lon = l;
+            found_lon = true;
+            continue;
+          }
+        }
+      }
+      if (found_lon === true) {
+        continue;
+      }
+    }
+    if (found_lat === true && found_lon === true) {
+      return keys;
+    } else {
+      alert("I could not find the right keys for your latitude and longitude fields\n" +
+        "Please set them in the settings or call them:\n" +
+        settings.possible_lat_keys + "\n\n" +
+        settings.possible_lon_keys + "\n\n");
+      return null;
+    }
+  };
+
+  var keys = geojson_analyzer(settings, geodata[0]);
+  if (keys === null) {
+    return 'no possible fields detected';
+  }
 
 
+var transformer = Geo.projections.ind.transform;
+var bounds = settings.boundingBox.bounds;
+var ptype = settings.ptype;
+var zoomed = settings.boundingBox.zoomed;
+
+  var coordinates = [];
+  for (var i = 0; i < geodata.length; i++) {
+
+    var xy = null;
+    var lat = geodata[i][keys.lat];
+    var lon = geodata[i][keys.lon];
+    var locations = [];
+    locations[0] = lon;
+    locations[1] = lat;
+    xy = transformer(doc, page, locations, zoomed, bounds ,ptype);
+    coordinates.push(xy);
+  }
+  return coordinates;
+};
 /**
  * End of geo.jsx
  */
@@ -893,7 +982,6 @@ var selector = function(doc, page){
  */
 
 var get_marker = function(doc, page){
-
   get_or_create_objectstyles(doc);
   var marker = page.ovals.add({
     geometricBounds:[0,-2,2,0],
@@ -904,6 +992,27 @@ var get_marker = function(doc, page){
   return marker;
 };
 
+
+var place_markers = function (doc, page, marker,coordinates,settings){
+  var layer;
+
+  if(settings.new_layer === true){
+    layer = doc.layers.item(settings.new_layer_name);
+    try{
+    var name = layer.name;
+    }catch(e){
+    layer = doc.layers.add({name:settings.new_layer_name});
+    }
+  }else{
+    layer = doc.activeLayer;
+  }
+
+  for(var i = 0; i < coordinates.length; i ++){
+    var currentmarker = marker.duplicate();
+    currentmarker.move([coordinates[i].x,coordinates[i].y]);
+    currentmarker.itemLayer = layer;
+  }
+};
 /**
  * End of marker.jsx
  */
@@ -913,7 +1022,8 @@ var get_marker = function(doc, page){
  */
 
 var draw = function() {
-  var doc = doc_setup(settings);
+  doc_setup(settings);
+  var doc = settings.doc;
   var page = doc.layoutWindows[0].activePage;
   var geodata = importer();
   if (geodata === null){
@@ -921,8 +1031,11 @@ var draw = function() {
       "Please inspect your csv file");
     return 0;
   }
-  var currMarker = selector(doc, page);
-
+  var marker = selector(doc, page);
+  // alert(geodata.toSource());
+  var coordinates = geodata_to_indesign_coords(settings, geodata, doc, page);
+  // alert(coordinates.toSource());
+  place_markers(doc, page, marker, coordinates,settings);
 };
 
 draw();
