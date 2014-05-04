@@ -68,21 +68,21 @@ var geodata_to_indesign_coords = function(settings, geodata, doc, page) {
     return 'no possible fields detected';
   }
 
-
 var transformer = Geo.projections.ind.transform;
 var bounds = settings.boundingBox.bounds;
 var ptype = settings.ptype;
 var zoomed = settings.boundingBox.zoomed;
 
   var coordinates = [];
+  if(DEBUG) $.writeln(geodata[0][keys.lat.constructor.name]);
   for (var i = 0; i < geodata.length; i++) {
 
     var xy = null;
     var lat = geodata[i][keys.lat];
     var lon = geodata[i][keys.lon];
     var locations = [];
-    locations[0] = lon;
-    locations[1] = lat;
+    locations[0] = parseFloat(lon);
+    locations[1] = parseFloat(lat);
     xy = transformer(doc, page, locations, zoomed, bounds ,ptype);
     coordinates.push(xy);
   }

@@ -1,6 +1,6 @@
 (function(thisObj) {
 
-/*! IDLocations.jsx - v0.1.0 - 2014-05-01 */
+/*! IDLocations.jsx - v0.1.0 - 2014-05-04 */
 /*
  * IDLocations
  * https://github.com/fabiantheblind/IDLocations
@@ -28,9 +28,9 @@
  *
  * see also http://www.opensource.org/licenses/mit-license.php
 */
-/***************************
+////////////////////////////////
 // This is globals.jsx
-****************************/
+///////////////////////////////
 var DEBUG = true; // just for debugging to the console
 var settings = {
   new_layer: true,
@@ -40,6 +40,20 @@ var settings = {
   text_key:"",
   possible_lat_keys : ["latitude","Latitude","LATITUDE","lat", "Lat","LAT"],
   possible_lon_keys : ["longitude","Longitude","LONGITUDE","lon", "Lon","LON"],
+  /**
+   * orientation possibilites are:
+   * DEFAULT
+   * CENTER
+   * TOP
+   * BOTTOM
+   * LEFT
+   * RIGHT
+   * UPPER_LEFT
+   * LOWER_LEFT
+   * UPPER_RIGHT
+   * LOWER_RIGHT
+   */
+  default_marker_orientation: "CENTER",
   /*
   The script will set these infos below by itself. Don't change them.
   It reads data written by IDMap into the document.label
@@ -60,6 +74,7 @@ var settings = {
 };
 
 // this is the world bounding box
+// will also be set by the script from the info of the doc
 settings.boundingBox = {
   zoomed: null,
   bounds:null
@@ -67,6 +82,8 @@ settings.boundingBox = {
 
 
 //  set a different bbox
+//  this is just for reference it will be set by the doc info
+//
 // this is berlin potsdam bounding box
 //
 // settings.boundingBox = {
@@ -74,19 +91,22 @@ settings.boundingBox = {
 //    bounds:{
 //   ul_lon: 12.9638671875, // the most left point
 //   ul_lat: 52.70468296296834, // the most top point
-//   lr_lat: 52.338695481504814, // the most bottom point
-//   lr_lon: 13.8153076171875 // the most right point
+//   lr_lon: 13.8153076171875, // the most right point
+//   lr_lat: 52.338695481504814 // the most bottom point
 //   }
 // };
 //
 // this is for testing purpose and use with tilemill
+// europe
+// UL  Latitude, Longitude: 60.965109923019, -27.476806640625
+// LR Latitude, Longitude: 43.12103377575541, 49.515380859375
 // settings.boundingBox = {
 //    zoomed: true,
 //    bounds:{
-//   ul_lon: 13.027, // the most left point
-//   ul_lat: 52.7138, // the most top point
-//   lr_lat: 52.3160, // the most bottom point
-//   lr_lon: 13.7769 // the most right point
+//   ul_lon: -27.476806640625, // the most left point
+//   ul_lat: 60.965109923019, // the most top point
+//   lr_lon: 49.515380859375, // the most right point
+//   lr_lat: 43.12103377575541 // the most bottom point
 //   }
 // };
 
@@ -96,13 +116,13 @@ settings.boundingBox = {
 //    bounds:{
 //   ul_lon: -85.87600708007812, // the most left point
 //   ul_lat: 24.265745335010493, // the most top point
-//   lr_lat:  19.76541117325592, // the most bottom point
-//   lr_lon:  -78.66897583007812 // the most right point
+//   lr_lon:  -78.66897583007812, // the most right point
+//   lr_lat:  19.76541117325592 // the most bottom point
 //   }
 // };
-/***************************
+/////////////////////////////
 // end of globals.jsx
-****************************/
+/////////////////////////////
 // this is src/locations/document.jsx
 var get_doc_infos = function() {
   if (app.documents.length < 1) {
@@ -894,21 +914,21 @@ var geodata_to_indesign_coords = function(settings, geodata, doc, page) {
     return 'no possible fields detected';
   }
 
-
 var transformer = Geo.projections.ind.transform;
 var bounds = settings.boundingBox.bounds;
 var ptype = settings.ptype;
 var zoomed = settings.boundingBox.zoomed;
 
   var coordinates = [];
+  if(DEBUG) $.writeln(geodata[0][keys.lat.constructor.name]);
   for (var i = 0; i < geodata.length; i++) {
 
     var xy = null;
     var lat = geodata[i][keys.lat];
     var lon = geodata[i][keys.lon];
     var locations = [];
-    locations[0] = lon;
-    locations[1] = lat;
+    locations[0] = parseFloat(lon);
+    locations[1] = parseFloat(lat);
     xy = transformer(doc, page, locations, zoomed, bounds ,ptype);
     coordinates.push(xy);
   }
@@ -978,45 +998,133 @@ var selector = function(doc, page){
 
 
 // end of selction.jsx
-/**
- * This is src/locations/marker.jsx
- */
 
-var get_marker = function(doc, page){
+// This is src/locations/marker.jsx
+
+var set_transformation = function(doc, orientation) {
+  // CENTER_ANCHOR
+  // TOP_CENTER_ANCHOR
+  doc.layoutWindows[0].transformReferencePoint = AnchorPoint.CENTER_ANCHOR;
+};
+var get_marker = function(doc, page) {
   get_or_create_objectstyles(doc);
   var marker = page.ovals.add({
-    geometricBounds:[0,-2,2,0],
+    geometricBounds: [0, -2, 2, 0],
     fillColor: doc.swatches.item(4)
-    });
-    marker.appliedObjectStyle = doc.objectStyles.item("marker basic");
-
+  });
+  marker.appliedObjectStyle = doc.objectStyles.item("marker basic");
   return marker;
 };
 
 
-var place_markers = function (doc, page, marker,coordinates,settings){
-  var layer;
+var offset_marker = function(orientation, pItem, x, y) {
+  // orientaation possibilites are:
+  // DEFAULT
+  // CENTER
+  // TOP
+  // BOTTOM
+  // LEFT
+  // RIGHT
+  // UPPER_LEFT
+  // LOWER_LEFT
+  // UPPER_RIGHT
+  // LOWER_RIGHT
 
-  if(settings.new_layer === true){
+  var dim = naive_getDims(pItem, true);
+  var mwidth = dim[0];
+  var mheight = dim[1];
+
+  if ((orientation).localeCompare('CENTER') === 0) {
+    x = x - mwidth / 2;
+    y = y - mheight / 2;
+  } else if ((orientation).localeCompare('TOP') === 0) {
+    x = x - mwidth / 2;
+    // y = y - mheight / 2;
+  } else if ((orientation).localeCompare('BOTTOM') === 0) {
+    x = x - mwidth / 2;
+    y = y - mheight;
+  } else if ((orientation).localeCompare('LEFT') === 0) {
+    // x = x - mwidth / 2;
+    y = y - mheight / 2;
+  } else if ((orientation).localeCompare('RIGHT') === 0) {
+    x = x - mwidth;
+    y = y - mheight / 2;
+  } else if ((orientation).localeCompare('DEFAULT') === 0) {
+    x = x - mwidth / 2;
+    y = y - mheight / 2;
+  }else if ((orientation).localeCompare('UPPER_LEFT') === 0) {
+    x = x - mwidth;
+    y = y - mheight;
+  }else if ((orientation).localeCompare('LOWER_LEFT') === 0) {
+    x = x -  mwidth;
+    // y = y + mheight;
+  }else if ((orientation).localeCompare('UPPER_RIGHT') === 0) {
+    // x = x + mwidth/2;
+    y = y - mheight;
+  }else if ((orientation).localeCompare('LOWER_RIGHT') === 0) {
+    // x = x + mwidth /2 ;
+    // y = y;
+  } else {
+    // fall back to default
+    x = x - mwidth / 2;
+    y = y - mheight / 2;
+  }
+
+  return [x, y];
+};
+
+var place_markers = function(doc, page, marker, coordinates, settings) {
+  var layer;
+  var orientation = settings.default_marker_orientation;
+  set_transformation(doc, null);
+  if (settings.new_layer === true) {
     layer = doc.layers.item(settings.new_layer_name);
-    try{
-    var name = layer.name;
-    }catch(e){
-    layer = doc.layers.add({name:settings.new_layer_name});
+    try {
+      var name = layer.name;
+    } catch (e) {
+      layer = doc.layers.add({
+        name: settings.new_layer_name
+      });
     }
-  }else{
+  } else {
     layer = doc.activeLayer;
   }
 
-  for(var i = 0; i < coordinates.length; i ++){
+  for (var i = 0; i < coordinates.length; i++) {
     var currentmarker = marker.duplicate();
-    currentmarker.move([coordinates[i].x,coordinates[i].y]);
+    var xy = offset_marker(orientation, currentmarker,coordinates[i].x,coordinates[i].y);
+    currentmarker.move(xy);
     currentmarker.itemLayer = layer;
   }
 };
-/**
- * End of marker.jsx
- */
+
+// take a look at this indiscripts blog post
+// I stay with the first version. because its easy and the other versions
+// dont take in account that the marker could be outside of the page
+// http://www.indiscripts.com/post/2009/10/work-around-the-width-height-gap
+// TRACK 1 -- naive "getDims" function
+
+// return the [width,height] of <obj>
+// according to its (geometric|visible)Bounds
+//
+// // sample code
+// var pItem = app.selection[0]; // get the selected object
+// alert('Geometric Dims: ' + naive_getDims(pItem));
+// alert('Visible Dims: ' + naive_getDims(pItem, true));
+
+function naive_getDims( /*PageItem*/ obj, /*bool*/ visible) {
+  var boundsProperty = ((visible) ? 'visible' : 'geometric') + 'Bounds';
+  var b = obj[boundsProperty];
+  // width=right-left , height = bottom-top
+  return [b[3] - b[1], b[2] - b[0]];
+}
+
+
+
+
+
+ // End of marker.jsx
+
 /**
  *
  * This is main.jsx
