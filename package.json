@@ -10,7 +10,7 @@
     "url": "git://github.com/fabiantheblind/IDLocations.git"
   },
   "devDependencies": {
-    "grunt-contrib-concat": "0.5.1",
+    "grunt-contrib-concat": "1.0.1",
     "grunt-contrib-copy": "1.0.0",
     "grunt-contrib-uglify": "5.0.0",
     "grunt-contrib-watch": "1.1.0",
